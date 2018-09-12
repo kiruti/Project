@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    <head>
+        <title>Simple Leaflet Map</title>
+        <meta charset="utf-8" />
+        <link rel="stylesheet" href="{% static 'web/vendor/leaflet/leaflet.css' %}" />
+        <link rel="stylesheet" href="{% static 'web/css/style.css' %}" />
+    </head>
+    <body>
+        <div id="map" style="width: 1350px; height: 620px"></div>
+    </body>
+	<script src="{% static 'web/vendor/leaflet/leaflet.js' %}"></script>
+	<script src="{% static 'web/js/app.js' %}"></script>
+</html>
