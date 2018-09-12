@@ -1,0 +1,7 @@
+.vscode/
+.venv/
+env/
+venv/
+*.sqlite3
+*.pyc
+*.swp

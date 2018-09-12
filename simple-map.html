@@ -1,49 +1,56 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-	<title>Simple Leaflet Map</title>	
-	<meta charset="utf-8"/>
-	<link 
-		rel="stylesheet"
-		href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" 
-	/>
+	<title>Simple Leaflet Map</title>
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet-0.7/leaflet.css" />
 </head>
+
 <body>
 	<div id="map" style="width: 1350px; height: 620px"></div>
 
-	<script
-		 src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
+	<script src="http://cdn.leafletjs.com/leaflet-0.7/leaflet.js">
 	</script>
 
 	<script>
+		Building = function(title, lat, lon){
+			this.title = title;
+			this.latitude = lat;
+			this.longitude = lon;
+
+			this.log = function(){
+				console.log(this.title);
+			}
+		}
 		var planes = [
-				["7C6807", -1.273308, 36.807241],
-				["7C6838", -1.272938, 36.807010],
-				["7C6CA1", -1.272949, 36.807670],
-				["7C6CA2", -1.272514, 36.807735],
-				["C81D9D", -1.271983, 36.807102],
-				["C82009", -1.271940, 36.807317],
-				["C82081",	-1.272508, 36.806255 ],
-				["C820AB", -1.272546, 36.806512],
-				["C820B6",	-1.273302, 36.806753 ]
-				
-				];
-		var map = L.map('map').setView([ -1.273354361415031, 36.80712819099427], 18);
+			new Building("7C6807", -1.273308, 36.807241),
+			new Building("7C6838", -1.272938, 36.807010),
+			new Building("7C6CA1", -1.272949, 36.807670),
+			new Building("7C6CA2", -1.272514, 36.807735),
+			new Building("C81D9D", -1.271983, 36.807102),
+			new Building("C82009", -1.271940, 36.807317),
+			new Building("C82081", -1.272508, 36.806255),
+			new Building("C820AB", -1.272546, 36.806512),
+			new Building("C820B6", -1.273302, 36.806753),
+		];
+		var map = L.map('map').setView([-1.273354361415031, 36.80712819099427], 18);
 		mapLink =
 			'<a href="http://openstreetmap.org">OpenStreetMap</a>';
 		L.tileLayer(
 			'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-			attribution: 'Map data& copy ; ' + mapLink,
-			maxZoom: 18,
+				attribution: 'Map data& copy ; ' + mapLink,
+				maxZoom: 18,
 			}).addTo(map);
 
-					for (var i = 0; i< planes.length; i++){
-							marker = new L.marker([planes[i][1]],planes[i][2]])
-								.bindPopup(planes[i][0])
-								.addTo(map);
-					}
+		for (var i = 0; i < planes.length; i++) {
+			marker = new L.marker([planes[i].latitude, planes[i].longitude])
+				.bindPopup(planes[i].title)
+				.addTo(map);
+			planes[i].log()
+		}
 
-					//for a single marker
+		//for a single marker
 		/*var marker = L.marker([-1.273354361415031, 36.80712819099427],
 			{
 				draggable: true,
@@ -55,7 +62,7 @@
 			.bindPopup("https://studymoose.com/the-world-is-a-smaller-place-these-days-essay")
 			.openPopup();
 				*/
-		</script>
+	</script>
 </body>
 
 </html>
