@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'core',
     'web',
 ]
 
@@ -75,12 +80,20 @@ WSGI_APPLICATION = 'buildingplans.wsgi.application'
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
+    'sqlite3': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
+DATABASES['default'] = DATABASES['sqlite3'] if os.getenv('DATABASE_ENGINE', None) is None else {
+    'ENGINE': os.environ.get('DATABASE_ENGINE', None),
+    'NAME': os.environ.get('DATABASE_NAME', None),
+    'USER': os.environ.get('DATABASE_USER', None),
+    'PASSWORD': os.environ.get('DATABASE_PASSWORD', None),
+    'HOST': os.environ.get('DATABASE_HOST', None),
+    'PORT': os.environ.get('DATABASE_PORT', None),
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
