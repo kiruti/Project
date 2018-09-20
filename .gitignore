@@ -1,7 +1,23 @@
+# Intellij project directory
+.idea
+
+# VS Code project directory
 .vscode/
+
+# Virtualenv library directory
 .venv/
-env/
 venv/
+.env/
+env/
+
+# Sqlite databases
 *.sqlite3
+
+# Python compiled binaries
 *.pyc
+
+# Vim temporary files
 *.swp
+
+# Environment config
+.env

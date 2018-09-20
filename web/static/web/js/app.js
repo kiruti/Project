@@ -32,7 +32,7 @@ L.tileLayer(
 
 for (var i = 0; i < planes.length; i++) {
     var marker = new L.marker([planes[i].latitude, planes[i].longitude])
-        .bindPopup(planes[i].title)
+        .bindPopup('<a href="//google.com" target="_blank" >' + planes[i].title + '</a>')
         .addTo(map);
     marker.onClick(function (e) {
         console.log("henlo");

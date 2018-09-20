@@ -1,0 +1,8 @@
+from django.contrib import admin
+import core.models
+
+# Register your models here.
+admin.site.register(core.models.BuildingType)
+admin.site.register(core.models.Building)
+admin.site.register(core.models.Floor)
+admin.site.register(core.models.Room)
