@@ -12,4 +12,43 @@
     </body>
 	<script src="{% static 'web/vendor/leaflet/leaflet.js' %}"></script>
 	<script src="{% static 'web/js/app.js' %}"></script>
+    <script>
+        Building = function(title, lat, lon, featureCollection, image){
+            this.title = title;
+            this.latitude = lat;
+            this.longitude = lon;
+            this.image = lon;
+            this.featureCollection = featureCollection;
+            this.image = image
+
+            this.log = function(){
+                console.log(this.title);
+            }
+        }
+        var planes = [
+            {% for building in buildings %}
+            new Building(
+                "{{ building.name}}",
+                {{ building.latitude}},
+                {{ building.longitude}}
+            ),
+            {% endfor %}
+        ];
+        var map = L.map('map').setView([-1.273354361415031, 36.80712819099427], 18);
+        mapLink =
+            '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+        L.tileLayer(
+            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data& copy ; ' + mapLink,
+                maxZoom: 18,
+            }).addTo(map);
+
+        for (var i = 0; i < planes.length; i++) {
+            var marker = new L.marker([planes[i].latitude, planes[i].longitude])
+                .bindPopup(planes[i].title)
+                .addTo(map);
+
+            planes[i].log()
+        }
+    </script>
 </html>
