@@ -30,7 +30,9 @@
             new Building(
                 "{{ building.name}}",
                 {{ building.latitude}},
-                {{ building.longitude}}
+                {{ building.longitude}},
+                {{ building.feature_collection|default:"null"|safe }},
+                {{ building.image|default:"null" }}
             ),
             {% endfor %}
         ];
@@ -47,6 +49,9 @@
             var marker = new L.marker([planes[i].latitude, planes[i].longitude])
                 .bindPopup(planes[i].title)
                 .addTo(map);
+            if(planes[i].featureCollection){
+                  L.geoJSON(planes[i].featureCollection).addTo(map);
+            }
 
             planes[i].log()
         }

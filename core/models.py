@@ -21,6 +21,10 @@ class Building(models.Model):
     def __str__(self):
         return self.name
 
+    def default(value, arg):
+        """If value is unavailable, use given default."""
+        return value or arg
+
 
 class Floor(models.Model):
     name = models.CharField(null=True, blank=True, max_length=255)
