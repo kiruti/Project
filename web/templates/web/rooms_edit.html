@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html>
+    {% load static %}
+    <head>
+        <title>Simple Leaflet Map</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1">
+        <link rel="stylesheet" href="{% static 'web/vendor/bootstrap/css/bootstrap.min.css' %}" />
+        <link rel="stylesheet" href="{% static 'web/vendor/leaflet/leaflet.css' %}" />
+        <link rel="stylesheet" href="{% static 'web/vendor/leaflet.draw/leaflet.draw.css' %}" />
+        <link rel="stylesheet" href="{% static 'web/css/style.css' %}" />
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <a class="navbar-brand" href="#">Navbar</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+
+          <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav mr-auto">
+              <li class="nav-item active">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="#">Link</a>
+              </li>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                  Dropdown
+                </a>
+                <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+                  <a class="dropdown-item" href="#">Action</a>
+                  <a class="dropdown-item" href="#">Another action</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="#">Something else here</a>
+                </div>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link disabled" href="#">Disabled</a>
+              </li>
+            </ul>
+            <form class="form-inline my-2 my-lg-0">
+              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+            </form>
+          </div>
+        </nav>
+        <div class="">
+            <div class="col-12 col-md-9 col-xl-10">
+                  <div id="map" style="height: 620px"></div>
+            </div>
+            <div class="col-12 col-md-3 col-xl-2 bd-sidebar">
+
+            </div>
+        </div>
+
+    </body>
+	<script src="{% static 'web/vendor/jquery/v3.3.1/js/jquery.slim.min.js' %}"></script>
+	<script src="{% static 'web/vendor/bootstrap/js/bootstrap.min.js' %}"></script>
+	<script src="{% static 'web/vendor/leaflet/leaflet.js' %}"></script>
+	<script src="{% static 'web/vendor/leaflet.draw/leaflet.draw.js' %}"></script>
+	<script src="{% static 'web/js/app.js' %}"></script>
+    <script>
+        var building = new Building(
+            "{{ building.name}}",
+            {{ building.latitude}},
+            {{ building.longitude}},
+            {{ building.feature_collection|default:"null"|safe }},
+            {{ building.image|default:"null" }}
+        );
+        var map = L.map('map').setView([building.latitude, building.longitude], 20);
+        var mapLink = '<a href="http://openstreetmap.org">OpenStreetMap</a>';
+        L.tileLayer(
+            'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: 'Map data& copy ; ' + mapLink,
+                maxZoom: 25,
+                maxNativeZoom: 18
+            }).addTo(map);
+        if(building.featureCollection) {
+            L.geoJSON(building.featureCollection).addTo(map);
+        }
+
+        var editableLayers = new L.FeatureGroup();
+        map.addLayer(editableLayers);
+
+        var MyCustomMarker = L.Icon.extend({
+            options: {
+                shadowUrl: null,
+                iconAnchor: new L.Point(12, 12),
+                iconSize: new L.Point(24, 24),
+                iconUrl: 'link/to/image.png'
+            }
+        });
+
+        var options = {
+            position: 'topright',
+            draw: {
+                polyline: {
+                    shapeOptions: {
+                        color: '#f357a1',
+                        weight: 10
+                    }
+                },
+                polygon: {
+                    allowIntersection: false, // Restricts shapes to simple polygons
+                    drawError: {
+                        color: '#e1e100', // Color the shape will turn when intersects
+                        message: '<strong>Oh snap!<strong> you can\'t draw that!' // Message that will show when intersect
+                    },
+                    shapeOptions: {
+                        color: '#bada55'
+                    }
+                },
+                circle: false, // Turns off this drawing tool
+                rectangle: {
+                    shapeOptions: {
+                        clickable: false
+                    }
+                },
+                marker: {
+                    icon: new MyCustomMarker()
+                }
+            },
+            edit: {
+                featureGroup: editableLayers, //REQUIRED!!
+                remove: false
+            }
+        };
+
+        var drawControl = new L.Control.Draw(options);
+        map.addControl(drawControl);
+
+        map.on(L.Draw.Event.CREATED, function (e) {
+            var layer = e.layer;
+            {#alert(JSON.stringify(layer.toGeoJSON()))#}
+            var bounds = layer.getBounds();
+            var latLng = bounds.getCenter();
+            console.log(latLng)
+            editableLayers.addLayer(layer);
+             layer.bindPopup(`
+<form method="post" action="{% url 'rooms_create' %}">
+  <div class="form-group">
+    <label for="roomName">Name</label>
+    <input type="text" class="form-control" id="roomName" name="roomName" placeholder="Room Name">
+  </div>
+  <div class="form-group">
+    <label for="floor">Floor</label>
+    <select class="form-control" id="floor" name="floorId">
+{% for floor in building.floor_set.all %}
+      <option value="{{ floor.id }}">{{ floor.level }}: {{ floor.name }}</option>
+{% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="roomImage">Image</label>
+    <input type="file" class="form-control" id="roomImage">
+  </div>
+  <input type="hidden" name="roomLatitude" value="${latLng.lat}">
+  <input type="hidden" name="roomLongitude" value="${latLng.lng}">
+  <input type="hidden" value="${JSON.stringify(layer.toGeoJSON()).replace(/"/g, '&quot;')}" name="roomFeatureCollection">
+  <input type='hidden' name='csrfmiddlewaretoken' value='{{ csrf_token }}' />
+  <button type="submit" class="btn btn-success">Save</button>
+  <button type="danger" class="btn btn-danger" onclick="">Cancel</button>
+</form>
+            `, {
+        minWidth: 400
+             }).openPopup();
+            {#console.log("hello")#}
+        });
+    </script>
+</html>
