@@ -2,7 +2,7 @@
 <html>
     {% load static %}
     <head>
-        <title>Simple Leaflet Map</title>
+        <title>##BOI##</title>
         <meta charset="utf-8" />
         <link rel="stylesheet" href="{% static 'web/vendor/leaflet/leaflet.css' %}" />
         <link rel="stylesheet" href="{% static 'web/css/style.css' %}" />
@@ -36,6 +36,9 @@
             ),
             {% endfor %}
         ];
+        var searchLayer = L.geoJson().addTo(map);
+
+        L.map('map', {searchControl:{layer: searchLayer}});
         var map = L.map('map').setView([-1.273354361415031, 36.80712819099427], 18);
         mapLink =
             '<a href="http://openstreetmap.org">OpenStreetMap</a>';
@@ -46,14 +49,15 @@
             }).addTo(map);
 
         for (var i = 0; i < planes.length; i++) {
-            var marker = new L.marker([planes[i].latitude, planes[i].longitude])
-                .bindPopup(planes[i].title)
-                .addTo(map);
             if(planes[i].featureCollection){
-                  L.geoJSON(planes[i].featureCollection).addTo(map);
+                  L.geoJSON(planes[i].featureCollection)
+                       .bindPopup(planes[i].title)
+                      .addTo(map);
             }
 
             planes[i].log()
         }
+
+
     </script>
 </html>
