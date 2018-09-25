@@ -36,9 +36,11 @@
             ),
             {% endfor %}
         ];
-        var searchLayer = L.geoJson().addTo(map);
 
-        L.map('map', {searchControl:{layer: searchLayer}});
+     //   var searchLayer = L.geoJson().addTo(map);
+
+        //L.map('map', {searchControl:{layer: searchLayer}});
+
         var map = L.map('map').setView([-1.273354361415031, 36.80712819099427], 18);
         mapLink =
             '<a href="http://openstreetmap.org">OpenStreetMap</a>';
