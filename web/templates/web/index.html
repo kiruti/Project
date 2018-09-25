@@ -6,25 +6,17 @@
         <meta charset="utf-8" />
         <link rel="stylesheet" href="{% static 'web/vendor/leaflet/leaflet.css' %}" />
         <link rel="stylesheet" href="{% static 'web/css/style.css' %}" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.3/leaflet.draw.css" />
+
     </head>
     <body>
         <div id="map" style="width: 1350px; height: 620px"></div>
     </body>
+    <script src="{% static 'web/vendor/jquery/v3.3.1/js/jquery-3.3.1.min.js' %}"></script>
 	<script src="{% static 'web/vendor/leaflet/leaflet.js' %}"></script>
+	<script src="{% static 'web/js/leaflet-indoor.js' %}"></script>
 	<script src="{% static 'web/js/app.js' %}"></script>
     <script>
-        Building = function(title, lat, lon, featureCollection, image){
-            this.title = title;
-            this.latitude = lat;
-            this.longitude = lon;
-            this.image = lon;
-            this.featureCollection = featureCollection;
-            this.image = image
-
-            this.log = function(){
-                console.log(this.title);
-            }
-        }
         var planes = [
             {% for building in buildings %}
             new Building(
@@ -36,25 +28,75 @@
             ),
             {% endfor %}
         ];
+<<<<<<< HEAD
 
      //   var searchLayer = L.geoJson().addTo(map);
 
         //L.map('map', {searchControl:{layer: searchLayer}});
 
         var map = L.map('map').setView([-1.273354361415031, 36.80712819099427], 18);
+=======
+        var map = L.map('map').setView([-1.273354361415031, 36.80712819099427], 20);
+>>>>>>> 5116430d42b4bbea800ba2837623c90e28756c7b
         mapLink =
             '<a href="http://openstreetmap.org">OpenStreetMap</a>';
         L.tileLayer(
             'http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: 'Map data& copy ; ' + mapLink,
-                maxZoom: 18,
+                maxZoom: 25,
+                maxNativeZoom: 18
             }).addTo(map);
 
         for (var i = 0; i < planes.length; i++) {
             if(planes[i].featureCollection){
-                  L.geoJSON(planes[i].featureCollection)
-                       .bindPopup(planes[i].title)
-                      .addTo(map);
+                  L.geoJSON(planes[i].featureCollection, {
+                      onEachFeature: function (feature, layer) {
+                          layer.on({
+                              'click': function () {
+                                  $.ajax({
+                                      'url': "{% url 'buildling_api_indoor' 1 %}"
+                                  }).done(function (geoJSON) {
+                                      console.log(geoJSON)
+                                      var indoorLayer = new L.Indoor(geoJSON, {
+                                          getLevel: function(feature) {
+                                              if (feature.properties.relations.length === 0)
+                                                  return null;
+
+                                              return feature.properties.relations[0].reltags.level;
+                                              },
+                                          onEachFeature: function(feature, layer) {
+                                              layer.bindPopup(JSON.stringify(feature.properties, null, 4));
+                                              },
+                                          style: function(feature) {
+                                              var fill = 'white';
+                                              if (feature.properties.tags.buildingpart === 'corridor') {
+                                                  fill = '#169EC6';
+                                              } else if (feature.properties.tags.buildingpart === 'verticalpassage') {
+                                                  fill = '#0A485B';
+                                              }
+
+                                              return {
+                                                  fillColor: fill,
+                                                  weight: 1,
+                                                  color: '#666',
+                                                  fillOpacity: 1
+                                              };
+                                          }
+                                      });
+                                      indoorLayer.setLevel("0");
+                                      indoorLayer.addTo(map);
+                                      var levelControl = new L.Control.Level({
+                                          level: "0",
+                                          levels: indoorLayer.getLevels()
+                                      });
+                                      // Connect the level control to the indoor layer
+                                      levelControl.addEventListener("levelchange", indoorLayer.setLevel, indoorLayer);
+                                      levelControl.addTo(map);
+                                  })
+                              }
+                          })
+                      }
+                  }).addTo(map);
             }
 
             planes[i].log()
