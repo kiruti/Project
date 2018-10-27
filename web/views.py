@@ -80,3 +80,4 @@ def rooms_store(request):
 
 def rooms_delete(request):
     pass
+
